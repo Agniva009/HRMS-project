@@ -15,6 +15,7 @@ A **DRY, scalable** input-handling system that enforces UPPERCASE on all user-en
 │  │  • Listens to input & paste events                        │  │
 │  │  • Converts value to UPPERCASE in real-time               │  │
 │  │  • Preserves cursor position                              │  │
+│  │  • Defers conversion during IME composition (CJK input)   │  │
 │  │  • Works with Reactive Forms, Template-driven, and plain  │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
@@ -205,6 +206,8 @@ Tests cover:
 - Exception fields remain unchanged
 - Empty / numeric / special character inputs
 - Reactive forms, template-driven, and plain elements
+- IME composition: no conversion during `compositionstart`→`compositionend`
+- Post-composition: normal uppercasing resumes after `compositionend`
 
 ### Backend
 
@@ -231,5 +234,6 @@ Tests cover:
 | **Never trust frontend** | Backend middleware enforces uppercase independently    |
 | **Scalable**       | Add a field name to the config to exempt; add `appUppercase` to a template to opt-in |
 | **Cursor-safe**    | Directive saves and restores `selectionStart` / `selectionEnd` |
+| **IME-safe**       | Conversion deferred during composition; applied on `compositionend` |
 | **UTF-8 safe**     | `mb_strtoupper()` on backend, native `toUpperCase()` on frontend |
 | **ERP-ready**      | Modular structure supports unlimited modules and forms      |
