@@ -140,4 +140,63 @@ describe('UppercaseDirective', () => {
     const input = typeInto(fixture, '#plain', 'apt 12-b, floor #3');
     expect(input.value).toBe('APT 12-B, FLOOR #3');
   });
+
+  it('should NOT convert during IME composition', () => {
+    const fixture = TestBed.createComponent(PlainHost);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.debugElement.query(
+      By.css('#plain')
+    ).nativeElement;
+
+    input.dispatchEvent(new Event('compositionstart'));
+
+    input.value = 'にほん';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(input.value).toBe('にほん');
+  });
+
+  it('should convert after IME compositionend', () => {
+    const fixture = TestBed.createComponent(PlainHost);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.debugElement.query(
+      By.css('#plain')
+    ).nativeElement;
+
+    input.dispatchEvent(new Event('compositionstart'));
+
+    input.value = 'abc';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(input.value).toBe('abc');
+
+    input.dispatchEvent(new Event('compositionend'));
+    fixture.detectChanges();
+    expect(input.value).toBe('ABC');
+  });
+
+  it('should resume normal uppercasing after composition ends', () => {
+    const fixture = TestBed.createComponent(PlainHost);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.debugElement.query(
+      By.css('#plain')
+    ).nativeElement;
+
+    input.dispatchEvent(new Event('compositionstart'));
+    input.value = 'test';
+    input.dispatchEvent(new Event('input'));
+    expect(input.value).toBe('test');
+
+    input.dispatchEvent(new Event('compositionend'));
+    expect(input.value).toBe('TEST');
+
+    input.value = 'hello';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(input.value).toBe('HELLO');
+  });
 });
